@@ -5,6 +5,10 @@ users = [
   {
     'email': 'fabiocaldas266@gmail.com',
     'password': '1234'
+  },
+  {
+    'email': 'flavindopneu@gmail.com',
+    'password': 'pizzacomcoca7'
   }
 ]
 
@@ -36,8 +40,3 @@ def authenticate_user():
       end_while
       clear()
       return True
-
-
-
-
-g
