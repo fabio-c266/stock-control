@@ -14,9 +14,11 @@ def add_product():
     category = input('Digite a categoria desse produto: ')
     amount = input('Digite a quantidade desse produto em estoque: ')
 
-    if not amount.isnumeric:
+    if not amount.isnumeric():
       print('Apenas utilize números na quantidade em estoque')
     else:
+      amount = int(amount)
+
       if amount < 1:
         print('Quantidade inválida.')
       else:
