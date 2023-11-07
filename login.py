@@ -1,16 +1,12 @@
 import os
+import sys
+
+sys.path.insert(0, './files.py')
+
+import files
 
 clear = lambda: os.system('cls')
-users = [
-  {
-    'email': 'fabiocaldas266@gmail.com',
-    'password': '1234'
-  },
-  {
-    'email': 'flavindopneu@gmail.com',
-    'password': 'pizzacomcoca7'
-  }
-]
+users = files.get('./database/users.json')
 
 def validate_email_and_password(email, password):
   is_valid_fields = False
@@ -26,11 +22,11 @@ def authenticate_user():
   end_while = False
   attempts_wrong = 0
   while(not end_while):
-    email = input('Insira suas credenciais de acesso. Você tera no máximo 2 tentivas de login, caso exceda o sitema irá se fechar:\nEmail: ')
+    email = input('Insira suas credenciais de acesso. Você tera no máximo 3 tentivas de login, caso exceda o sitema irá se fechar:\nEmail: ')
     password = input('Senha: ')
 
     valid_authentication = validate_email_and_password(email, password)
-    if attempts_wrong == 2:
+    if attempts_wrong == 3:
       print('Você atingiu o número máximo de tentativas.')
       end_while
       return False

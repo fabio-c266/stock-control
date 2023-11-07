@@ -1,10 +1,16 @@
 import os
 import pandas
+import datetime as date
+import sys
 
+sys.path.insert(0, './files.py')
 clear = lambda: os.system('cls')
-products = []
+import files
+
+products_path = './database/products.json'
 
 def add_product():
+  products = files.get(products_path)
   name = input('Digite o nome do produto: ')
 
   if name in products:
@@ -22,14 +28,16 @@ def add_product():
       if amount < 1:
         print('Quantidade inválida.')
       else:
-        products.append({
+       files.add(products_path, {
           'name': name,
           'category': category,
           'amount': amount
         })
 
 def get_products():
-  if len(products) == 0:
+  products = files.get(products_path)
+
+  if not have_products():
     print('Não possui nenhum produto cadastrado.')
   else:
     products_names = []
@@ -41,20 +49,27 @@ def get_products():
       products_categories.append(product['category'])
       products_amount.append(product['amount'])
     
-    table = pandas.DataFrame({
+    dataframe = pandas.DataFrame({
       'Produto': products_names,
       'Categoria': products_categories,
       'Quantidade': products_amount
     })
 
-    print('=' * 80)
-    print(table)
-    print('=' * 80)
+    current_date = date.datetime.now().strftime('%d/%m/%Y %H:%M:%S').replace('/', '-').replace(' ', '-').replace(':', '-')
+    if not os.path.exists('/reports'):
+      os.mkdir('reports')
+
+    csvName = f'./reports/{current_date}.csv'
+
+    dataframe.to_csv(csvName, index = False)
+    print('CSV gerado com sucesso para visualizar os produtos do estoque!')
 
 def alter_product():
   if not have_products():
     print('Não possui nenhum produto cadastrado')
   else:
+    products = files.get(products_path)
+
     product_target = input(f"Digite o número produto que você deseja alterar:\n{available_products()}")
     if product_target.isnumeric():
       product_target = int(product_target)
@@ -65,15 +80,26 @@ def alter_product():
       field = (input('Qual informação você alterar?\n- Nome\n- Categoria\n- Quantidade\n')).lower()
       if field == 'nome':
         new_name = input('Digite o novo nome desse produto: ')
+
         if new_name in products:
           print('Já possui um produto com esse nome')
         else:
-          products[product_target]['name'] = new_name
+          files.update(products_path, product_target, {
+            "name": new_name,
+            "category": products[product_target]['category'],
+            "amount": products[product_target]['amount']
+          })
           clear()
 
       elif field == 'categoria':
         new_category = input('Qual a nova categoria desse produto: ')
         products[product_target]['category'] = new_category
+
+        files.update(products_path, product_target, {
+            "name": products[product_target]['name'],
+            "category": new_category,
+            "amount": products[product_target]['amount']
+          })
         clear()
       elif field == 'quantidade':
         new_amount = input('Qual a nova quantidade desse produto: ')
@@ -81,6 +107,13 @@ def alter_product():
           print("Apenas utilize números")
         else:
           products[product_target]['amount'] = int(new_amount)
+          files.update(products_path, product_target, {
+            "name": products[product_target]['name'],
+            "category": products[product_target]['category'],
+            "amount": int(new_amount)
+          })
+
+          clear()
       else:
         print('Informação inválida')
 
@@ -88,22 +121,26 @@ def delete_product():
   if not have_products():
     print('Não possui nenhum produto cadastrado')
   else:
+    products = files.get(products_path)
+
     product_to_delete = input(f"Digite o número produto que você deseja deletar:\n{available_products()}")
     if product_to_delete.isnumeric():
       product_to_delete = int(product_to_delete)
     if not isinstance(product_to_delete, int) or (product_to_delete < 0 or product_to_delete > len(products)):
       print('Valor inserido errado.')
     else:
-      del products[product_to_delete]
+      files.remove(products_path, product_to_delete)
       clear()
 
 def have_products():
-  if len(products) == 0:
+  if len(files.get(products_path)) == 0:
     return False
   else:
     return True
 
 def available_products():
+  products = files.get(products_path)
+
   available = ''
   for index, product in enumerate(products):
     available += f".{index} {product['name']}\n"
