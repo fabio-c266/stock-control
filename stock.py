@@ -56,7 +56,7 @@ def get_products():
     })
 
     current_date = date.datetime.now().strftime('%d/%m/%Y %H:%M:%S').replace('/', '-').replace(' ', '-').replace(':', '-')
-    if not os.path.exists('/reports'):
+    if not os.path.exists('reports'):
       os.mkdir('reports')
 
     csvName = f'./reports/{current_date}.csv'
